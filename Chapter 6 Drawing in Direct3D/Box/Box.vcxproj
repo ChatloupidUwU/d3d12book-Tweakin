@@ -145,6 +145,10 @@
     <ClCompile Include="..\..\Common\GameTimer.cpp" />
     <ClCompile Include="..\..\Common\MathHelper.cpp" />
     <ClCompile Include="BoxApp.cpp" />
+    <ClCompile Include="ECS\Component.cpp" />
+    <ClCompile Include="ECS\Compos\Camera.cpp" />
+    <ClCompile Include="ECS\Entity.cpp" />
+    <ClCompile Include="ECS\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Common\d3dApp.h" />
@@ -152,6 +156,13 @@
     <ClInclude Include="..\..\Common\GameTimer.h" />
     <ClInclude Include="..\..\Common\MathHelper.h" />
     <ClInclude Include="..\..\Common\UploadBuffer.h" />
+    <ClInclude Include="ECS\Component.h" />
+    <ClInclude Include="ECS\Compos\Camera.h" />
+    <ClInclude Include="ECS\Entity.h" />
+    <ClInclude Include="ECS\ExHeaders\D3DUtils.h" />
+    <ClInclude Include="ECS\ExHeaders\d3dx12.h" />
+    <ClInclude Include="ECS\Transform.h" />
+    <ClInclude Include="ECS\__BSHeader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

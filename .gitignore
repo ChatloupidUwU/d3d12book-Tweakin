@@ -45,3 +45,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Custom, forked ignores
+Chapter\ 6\ Drawing\ in\ Direct3D/Box/x64/
+Chapter\ 6\ Drawing\ in\ Direct3D/Box/.vs/Box/v14/
+Chapter\ 6\ Drawing\ in\ Direct3D/Box/.vs/Box/v17/ipch/

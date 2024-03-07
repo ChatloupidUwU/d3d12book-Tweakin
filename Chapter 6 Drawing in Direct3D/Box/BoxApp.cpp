@@ -17,12 +17,21 @@
 
 #include "ECS/Compos/Camera.h"
 
+// Stuff to print in the Visual console
+#include <windows.h>
+#include <stdio.h>
+#define VisualConsolePrint(buffer, msg, ...) \
+    do{ \
+        _snprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, __VA_ARGS__); \
+        OutputDebugStringA(buffer); \
+    } while(0)
+
 typedef enum
 {
     ORIGINAL = 0,
     ENTITY_CAM
 } runConv;
-runConv runMode = ORIGINAL;
+runConv runMode = ENTITY_CAM;
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -91,6 +100,9 @@ private:
     POINT mLastMousePos;
 
 private:
+    // Used for debug, dw
+    char buff[200];
+
     // Component and Entity creation, hard-coded for testing
     Entity* _pEPlayer = new Entity();
 
@@ -283,10 +295,12 @@ void BoxApp::OnMouseDown(WPARAM btnState, int x, int y)
         mLastMousePos.x = x;
         mLastMousePos.y = y;
         break;
-
+        
     case ENTITY_CAM:
         MousePos newStartMousePos = { x, y };
+        VisualConsolePrint(BoxApp::buff, "Calling _pCam=>SetMousePos()\n");
         _pCam->SetMousePos(newStartMousePos);
+        VisualConsolePrint(BoxApp::buff, "Call done !\n\n");
         break;
     }
 
@@ -319,7 +333,9 @@ void BoxApp::OnMouseMove(WPARAM btnState, int x, int y)
             break;
 
         case ENTITY_CAM:
+            VisualConsolePrint(BoxApp::buff, "Calling _pCam");
             _pCam->UpdateCam(x, y);
+            VisualConsolePrint(BoxApp::buff, "Call done !\n\n");
             break;
         }
     }

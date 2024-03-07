@@ -4,6 +4,11 @@
 // Include DirectX libs
 #include <DirectXMath.h>
 
+// Stuff to print in the Visual console
+#include <windows.h>
+#include <stdio.h>
+char buff[200];
+
 // Constru & Destru
 Camera::Camera(Entity* ARGpEOwner, float ARGfTheta, float ARGfPhi, float ARGfRadius, MousePos ARGStartMousePos)
 	: Component(ARGpEOwner, CAMERA), _fTheta(ARGfTheta), _fPhi(ARGfPhi), _fRadius(ARGfRadius), _PrevMousePos(ARGStartMousePos)
@@ -21,6 +26,8 @@ Camera::~Camera()
 // This method needs to be called every time the player moves the mouse (or every frame if we go cave-man mode)
 void Camera::UpdateCam(int ARGiNewPosX, int ARGiNewPosY)
 {
+	_snprintf_s(buff, 200, _TRUNCATE, "=>UpdateCam(int ARGiNewPosX = %d, int ARGiNewPosY = %d)\n", ARGiNewPosX, ARGiNewPosY);
+	OutputDebugStringA(buff);
 	// Calculates the difference in movement of the mouse
 	int iDiffX = ARGiNewPosX - _PrevMousePos.x;
 	int iDiffY = ARGiNewPosY - _PrevMousePos.y;
@@ -40,6 +47,11 @@ void Camera::UpdateCam(int ARGiNewPosX, int ARGiNewPosY)
 	// Finally, restrict angles to limit where the player can see
 	_fPhi = _fPhi < _fLIMPhiMin ? _fLIMPhiMin : (_fPhi > _fLIMPhiMax ? _fLIMPhiMax : _fPhi);
 	/*_fTheta = _fTheta < _fLIMThetaMin ? _fLIMThetaMin : (_fTheta > _fLIMThetaMax ? _fLIMThetaMax : _fTheta);*/
+
+	_snprintf_s(buff, 200, _TRUNCATE, "\tValue updated :\n\t _fTheta = %.5f\n\t _fPhi = %.5f", _fTheta, _fPhi);
+	OutputDebugStringA(buff);
+	_snprintf_s(buff, 200, _TRUNCATE, "\n\t<> EXITING...\n");
+	OutputDebugStringA(buff);
 }
 
 // Getters to construct View Matrix with the Camera

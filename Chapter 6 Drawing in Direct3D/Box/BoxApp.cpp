@@ -180,7 +180,7 @@ void BoxApp::OnResize()
 void BoxApp::Update(const GameTimer& gt)
 {
     // So the console doesn't get flooded
-    Sleep(2000);
+    //Sleep(2000);
     VSCPrint(buff, "~<( START OF UPDATE LOOP\n\n");
 
     // Convert Spherical to Cartesian coordinates.
@@ -188,34 +188,12 @@ void BoxApp::Update(const GameTimer& gt)
     x = mRadius * sinf(mPhi) * cosf(mTheta);
     z = mRadius * sinf(mPhi) * sinf(mTheta);
     y = mRadius * cosf(mPhi);
-    VSCPrint(BoxApp::buff, "ORIGINAL : (rad, phi, the) = (%.5f, %.5f, %.5f)\n", mRadius, mPhi, mTheta);
-    VSCPrint(BoxApp::buff, "ORIGINAL : x = RAD * sinf(PHI) * cosf(THETA)\n");
-    VSCPrint(BoxApp::buff, "         : y = RAD * sinf(PHI) * sinf(THETA)\n");
-    VSCPrint(BoxApp::buff, "         : z = RAD * cosf(PHI)\n");
-    VSCPrint(BoxApp::buff, "ORIGINAL : x = RAD * %.5f * %.5f\n", sinf(mPhi), cosf(mTheta));
-    VSCPrint(BoxApp::buff, "         : y = RAD * %.5f * %.5f\n", sinf(mPhi), sinf(mTheta));
-    VSCPrint(BoxApp::buff, "         : z = RAD * %.5f\n", cosf(mPhi));
-    VSCPrint(BoxApp::buff, "ORIGINAL : x = %.5f\n", x);
-    VSCPrint(BoxApp::buff, "         : y = %.5f\n", y);
-    VSCPrint(BoxApp::buff, "         : z = %.5f\n\n", z);
     switch (runMode)
     {
     case ENTITY_CAM:
         x = (_pCam->GetRadius()) * (sinf(_pCam->GetPhi())) * (cosf(_pCam->GetTheta()));
-        y = (_pCam->GetRadius()) * (sinf(_pCam->GetPhi())) * (sinf(_pCam->GetTheta()));
-        z = (_pCam->GetRadius()) * (cosf(_pCam->GetPhi()));
-        VSCPrint(BoxApp::buff, "ENTITY_CAM : (rad, phi, the) = (%.5f, %.5f, %.5f)\n", mRadius, mPhi, mTheta);
-        VSCPrint(BoxApp::buff, "ENTITY_CAM : x = RAD * sinf(PHI) * cosf(THETA)\n");
-        VSCPrint(BoxApp::buff, "         : y = RAD * sinf(PHI) * sinf(THETA)\n");
-        VSCPrint(BoxApp::buff, "         : z = RAD * cosf(PHI)\n");
-        VSCPrint(BoxApp::buff, "ENTITY_CAM : x = RAD * %.5f * %.5f\n", sinf(_pCam->GetPhi()), cosf(_pCam->GetTheta()));
-        VSCPrint(BoxApp::buff, "         : y = RAD * %.5f * %.5f\n", sinf(mPhi), sinf(mTheta));
-        VSCPrint(BoxApp::buff, "         : z = RAD * %.5f\n", cosf(mPhi));
-        VSCPrint(BoxApp::buff, "ENTITY_CAM : x = %.5f\n", x);
-        VSCPrint(BoxApp::buff, "         : y = %.5f\n", y);
-        VSCPrint(BoxApp::buff, "         : z = %.5f\n", z);
-        VSCPrint(BoxApp::buff, "ENTITY_CAM : (rad, phi, the) = (%.5f, %.5f, %.5f)\n", _pCam->GetRadius(), _pCam->GetPhi(), _pCam->GetTheta());
-        VSCPrint(BoxApp::buff, "ENTITY_CAM : (x, y, z) = (%.5f, %.5f, %.5f)\n\n", x, y, z);
+        z = (_pCam->GetRadius()) * (sinf(_pCam->GetPhi())) * (sinf(_pCam->GetTheta()));
+        y = (_pCam->GetRadius()) * (cosf(_pCam->GetPhi()));
         break;
     }
 

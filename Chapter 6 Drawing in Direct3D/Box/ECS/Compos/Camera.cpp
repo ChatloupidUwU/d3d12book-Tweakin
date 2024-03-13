@@ -7,7 +7,12 @@
 // Stuff to print in the Visual console
 #include <windows.h>
 #include <stdio.h>
-char buff[200];
+#define VSCPrint(buffer, msg, ...) \
+    do{ \
+        _snprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, __VA_ARGS__); \
+        OutputDebugStringA(buffer); \
+    } while(0)
+char buff[200]; // Global within the class (in main.cpp, it's a member to avoid problems)
 
 // Constru & Destru
 Camera::Camera(Entity* ARGpEOwner, float ARGfTheta, float ARGfPhi, float ARGfRadius, MousePos ARGStartMousePos)
@@ -26,32 +31,37 @@ Camera::~Camera()
 // This method needs to be called every time the player moves the mouse (or every frame if we go cave-man mode)
 void Camera::UpdateCam(int ARGiNewPosX, int ARGiNewPosY)
 {
-	_snprintf_s(buff, 200, _TRUNCATE, "=>UpdateCam(int ARGiNewPosX = %d, int ARGiNewPosY = %d)\n", ARGiNewPosX, ARGiNewPosY);
-	OutputDebugStringA(buff);
+	VSCPrint(buff, "=>UpdateCam(int ARGiNewPosX = %d, int ARGiNewPosY = %d)\n", ARGiNewPosX, ARGiNewPosY);
+
 	// Calculates the difference in movement of the mouse
-	int iDiffX = ARGiNewPosX - _PrevMousePos.x;
-	int iDiffY = ARGiNewPosY - _PrevMousePos.y;
+	int iDx = ARGiNewPosX - _PrevMousePos.x;
+	int iDy = ARGiNewPosY - _PrevMousePos.y;
+	VSCPrint(buff, "\tiDx = %d ||| iDy = %d\n", iDx, iDy);
 
 	// Applies a factor on the movement of the mouse. You can think of it as the sensibility of the mouse movements.
-	float fFactoredDiffX = 0.25f * iDiffX;
-	float fFactoredDiffY = 0.25f * iDiffY;
+	float fDegAngleX = 0.25f * static_cast<float>(iDx);
+	float fDegAngleY = 0.25f * static_cast<float>(iDy);
+	VSCPrint(buff, "\tfDegAngleX = %.5f ||| fDegAngleY = %.5f\n", fDegAngleX, fDegAngleY);
 
 	// Converts both distances in radians, so we interpret the "magnitude" of the mouse move by actual Camera movement
-	float fActualMovementX = DirectX::XMConvertToRadians(fFactoredDiffX);
-	float fActualMovementY = DirectX::XMConvertToRadians(fFactoredDiffY);
+	float fRadAngleX = DirectX::XMConvertToRadians(fDegAngleX);
+	float fRadAngleY = DirectX::XMConvertToRadians(fDegAngleY);
+	VSCPrint(buff, "\tfRadAngleX = %.5f ||| fRadAngleY = %.5f\n", fRadAngleX, fRadAngleY);
 
 	// Updates both the angles
-	_fTheta = fActualMovementX;
-	_fPhi = fActualMovementY;
+	_fTheta += fRadAngleX;
+	_fPhi += fRadAngleY;
 
 	// Finally, restrict angles to limit where the player can see
 	_fPhi = _fPhi < _fLIMPhiMin ? _fLIMPhiMin : (_fPhi > _fLIMPhiMax ? _fLIMPhiMax : _fPhi);
 	/*_fTheta = _fTheta < _fLIMThetaMin ? _fLIMThetaMin : (_fTheta > _fLIMThetaMax ? _fLIMThetaMax : _fTheta);*/
 
-	_snprintf_s(buff, 200, _TRUNCATE, "\tValue updated :\n\t _fTheta = %.5f\n\t _fPhi = %.5f", _fTheta, _fPhi);
-	OutputDebugStringA(buff);
-	_snprintf_s(buff, 200, _TRUNCATE, "\n\t<> EXITING...\n");
-	OutputDebugStringA(buff);
+	// Updates the mouse position
+	_PrevMousePos.x = ARGiNewPosX;
+	_PrevMousePos.y = ARGiNewPosY;
+
+	VSCPrint(buff, "\tValue post-clamp : _fTheta = %.5f   _fPhi = %.5f", _fTheta, _fPhi);
+	VSCPrint(buff, "\n<> EXITING...\n");
 }
 
 // Getters to construct View Matrix with the Camera
@@ -63,4 +73,5 @@ float Camera::GetRadius() { return _fRadius; }
 void Camera::SetMousePos(MousePos ARGStartMousePos)
 {
 	_PrevMousePos = ARGStartMousePos;
+	VSCPrint(buff, "Camera::MousePos is at (%d, %d)\n", _PrevMousePos.x, _PrevMousePos.y);
 }

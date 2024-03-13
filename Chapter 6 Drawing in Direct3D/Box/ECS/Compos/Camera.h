@@ -30,7 +30,7 @@ public:
 
 private:
     // Variables needed to rotate the Camera around
-    // Phi is the angl for Up & Down, Theta is the angle for Left & Right
+    // Phi is the angle for Up & Down, Theta is the angle for Left & Right
     float _fTheta;
     float _fPhi;
     float _fRadius;

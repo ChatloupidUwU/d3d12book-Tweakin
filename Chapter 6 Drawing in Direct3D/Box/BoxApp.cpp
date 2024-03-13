@@ -20,7 +20,7 @@
 // Stuff to print in the Visual console
 #include <windows.h>
 #include <stdio.h>
-#define VisualConsolePrint(buffer, msg, ...) \
+#define VSCPrint(buffer, msg, ...) \
     do{ \
         _snprintf_s(buffer, sizeof(buffer), _TRUNCATE, msg, __VA_ARGS__); \
         OutputDebugStringA(buffer); \
@@ -179,20 +179,43 @@ void BoxApp::OnResize()
 
 void BoxApp::Update(const GameTimer& gt)
 {
+    // So the console doesn't get flooded
+    Sleep(2000);
+    VSCPrint(buff, "~<( START OF UPDATE LOOP\n\n");
+
     // Convert Spherical to Cartesian coordinates.
     float x, y, z;
+    x = mRadius * sinf(mPhi) * cosf(mTheta);
+    z = mRadius * sinf(mPhi) * sinf(mTheta);
+    y = mRadius * cosf(mPhi);
+    VSCPrint(BoxApp::buff, "ORIGINAL : (rad, phi, the) = (%.5f, %.5f, %.5f)\n", mRadius, mPhi, mTheta);
+    VSCPrint(BoxApp::buff, "ORIGINAL : x = RAD * sinf(PHI) * cosf(THETA)\n");
+    VSCPrint(BoxApp::buff, "         : y = RAD * sinf(PHI) * sinf(THETA)\n");
+    VSCPrint(BoxApp::buff, "         : z = RAD * cosf(PHI)\n");
+    VSCPrint(BoxApp::buff, "ORIGINAL : x = RAD * %.5f * %.5f\n", sinf(mPhi), cosf(mTheta));
+    VSCPrint(BoxApp::buff, "         : y = RAD * %.5f * %.5f\n", sinf(mPhi), sinf(mTheta));
+    VSCPrint(BoxApp::buff, "         : z = RAD * %.5f\n", cosf(mPhi));
+    VSCPrint(BoxApp::buff, "ORIGINAL : x = %.5f\n", x);
+    VSCPrint(BoxApp::buff, "         : y = %.5f\n", y);
+    VSCPrint(BoxApp::buff, "         : z = %.5f\n\n", z);
     switch (runMode)
     {
-    case ORIGINAL:
-        x = mRadius * sinf(mPhi) * cosf(mTheta);
-        z = mRadius * sinf(mPhi) * sinf(mTheta);
-        y = mRadius * cosf(mPhi);
-        break;
-
     case ENTITY_CAM:
-        x = _pCam->GetRadius() * sinf(_pCam->GetPhi()) * cosf(_pCam->GetTheta());
-        y = _pCam->GetRadius() * sinf(_pCam->GetPhi()) * cosf(_pCam->GetTheta());
-        z = _pCam->GetRadius() * cosf(_pCam->GetPhi());
+        x = (_pCam->GetRadius()) * (sinf(_pCam->GetPhi())) * (cosf(_pCam->GetTheta()));
+        y = (_pCam->GetRadius()) * (sinf(_pCam->GetPhi())) * (sinf(_pCam->GetTheta()));
+        z = (_pCam->GetRadius()) * (cosf(_pCam->GetPhi()));
+        VSCPrint(BoxApp::buff, "ENTITY_CAM : (rad, phi, the) = (%.5f, %.5f, %.5f)\n", mRadius, mPhi, mTheta);
+        VSCPrint(BoxApp::buff, "ENTITY_CAM : x = RAD * sinf(PHI) * cosf(THETA)\n");
+        VSCPrint(BoxApp::buff, "         : y = RAD * sinf(PHI) * sinf(THETA)\n");
+        VSCPrint(BoxApp::buff, "         : z = RAD * cosf(PHI)\n");
+        VSCPrint(BoxApp::buff, "ENTITY_CAM : x = RAD * %.5f * %.5f\n", sinf(_pCam->GetPhi()), cosf(_pCam->GetTheta()));
+        VSCPrint(BoxApp::buff, "         : y = RAD * %.5f * %.5f\n", sinf(mPhi), sinf(mTheta));
+        VSCPrint(BoxApp::buff, "         : z = RAD * %.5f\n", cosf(mPhi));
+        VSCPrint(BoxApp::buff, "ENTITY_CAM : x = %.5f\n", x);
+        VSCPrint(BoxApp::buff, "         : y = %.5f\n", y);
+        VSCPrint(BoxApp::buff, "         : z = %.5f\n", z);
+        VSCPrint(BoxApp::buff, "ENTITY_CAM : (rad, phi, the) = (%.5f, %.5f, %.5f)\n", _pCam->GetRadius(), _pCam->GetPhi(), _pCam->GetTheta());
+        VSCPrint(BoxApp::buff, "ENTITY_CAM : (x, y, z) = (%.5f, %.5f, %.5f)\n\n", x, y, z);
         break;
     }
 
@@ -201,8 +224,8 @@ void BoxApp::Update(const GameTimer& gt)
     switch (runMode)
     {
     case ORIGINAL:
-        pos = XMVectorSet(x, y, z, 1.0f);
-        target = XMVectorZero();
+        pos = XMVectorZero();
+        target = XMVectorSet(x, y, z, 1.0f);
         up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
         break;
 
@@ -292,15 +315,16 @@ void BoxApp::OnMouseDown(WPARAM btnState, int x, int y)
     switch (runMode)
     {
     case ORIGINAL:
+        VSCPrint(BoxApp::buff, "Setting LastMousePos\n");
         mLastMousePos.x = x;
         mLastMousePos.y = y;
         break;
         
     case ENTITY_CAM:
         MousePos newStartMousePos = { x, y };
-        VisualConsolePrint(BoxApp::buff, "Calling _pCam=>SetMousePos()\n");
+        VSCPrint(BoxApp::buff, "Calling _pCam=>SetMousePos()\n");
         _pCam->SetMousePos(newStartMousePos);
-        VisualConsolePrint(BoxApp::buff, "Call done !\n\n");
+        VSCPrint(BoxApp::buff, "Call done !\n\n");
         break;
     }
 
@@ -314,28 +338,33 @@ void BoxApp::OnMouseUp(WPARAM btnState, int x, int y)
 
 void BoxApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
+    VSCPrint(buff, "Mouse has moved and is now at (%d, %d)\n", x, y);
+
     if ((btnState & MK_LBUTTON) != 0)
     {
         float dx, dy;
+        // Make each pixel correspond to a quarter of a degree.
+        dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
+        dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
+        VSCPrint(buff, "ORIGINAL OnMouseMove()\n");
+        VSCPrint(buff, "\tiDx = %d ||| iDy = %d\n", x - mLastMousePos.x, y - mLastMousePos.y);
+        VSCPrint(buff, "\tfDegAngleX = %.5f ||| fDegAngleY = %.5f\n", 0.25f * static_cast<float>(x - mLastMousePos.x), 0.25f * static_cast<float>(y - mLastMousePos.y));
+        VSCPrint(buff, "\tfRadAngleX = %.5f ||| fRadAngleY = %.5f\n", XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x)), XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y)));
+
+        // Update angles based on input to orbit camera around box.
+        mTheta += dx;
+        mPhi += dy;
+
+        // Restrict the angle mPhi.
+        mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
+        VSCPrint(buff, "\tValue post-clamp : _fTheta = %.5f   _fPhi = %.5f\n", mTheta, mPhi);
+
         switch (runMode)
         {
-        case ORIGINAL:
-            // Make each pixel correspond to a quarter of a degree.
-            dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
-            dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
-
-            // Update angles based on input to orbit camera around box.
-            mTheta += dx;
-            mPhi += dy;
-
-            // Restrict the angle mPhi.
-            mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
-            break;
-
         case ENTITY_CAM:
-            VisualConsolePrint(BoxApp::buff, "Calling _pCam");
+            VSCPrint(BoxApp::buff, "Calling _pCam");
             _pCam->UpdateCam(x, y);
-            VisualConsolePrint(BoxApp::buff, "Call done !\n\n");
+            VSCPrint(BoxApp::buff, "Call done !\n\n");
             break;
         }
     }
@@ -529,7 +558,7 @@ void BoxApp::BuildPSO()
         mpsByteCode->GetBufferSize()
     };
     psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    /* Mouahah double-sided traignles >:3 */psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+    /* Mouahah double-sided triangles >:3 */psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
     psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psoDesc.SampleMask = UINT_MAX;
